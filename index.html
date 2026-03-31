@@ -1,155 +1,136 @@
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-<meta charset="UTF-8">
-<title>디지털 윤리 재판 게임</title>
+import React, { useState, useEffect, useMemo } from "react";
 
-<style>
-body { font-family: sans-serif; background:#f4f6fb; padding:20px;}
-.card { background:white; padding:20px; border-radius:12px; margin-bottom:20px;}
-button { padding:10px 15px; border:none; border-radius:8px; background:#4CAF50; color:white;}
-textarea { width:100%; height:80px; margin-top:10px;}
-select { margin-top:10px; }
-</style>
-</head>
-
-<body>
-
-<h1>⚖️ 디지털 윤리 재판 게임</h1>
-
-<div class="card">
-이름: <input id="name">
-<button onclick="start()">시작</button>
-</div>
-
-<div id="game"></div>
-
-<script>
-
-let state = {
-  name:"",
-  caseIndex:0,
-  answers:{}
-};
-
+// ===== 최신 한국 사례 =====
 const cases = [
   {
-    id:1,
-    text:"🔥 사건1: SNS에서 특정 학생을 비난하는 글이 퍼지고 있다."
+    id: 1,
+    title: "연예인 악플 사건",
+    summary: "유명 아이돌이 악성 댓글로 활동 중단. 플랫폼이 댓글 기능 제한.",
+    question: "댓글 기능 제한은 정당한가?",
   },
   {
-    id:2,
-    text:"🔥 사건2: 단톡방에서 확인되지 않은 연예인 루머가 공유되고 있다."
-  }
+    id: 2,
+    title: "가짜뉴스 확산 사건",
+    summary: "SNS 허위 정보로 사회 혼란 발생. 정부가 삭제 요청.",
+    question: "정부의 삭제 요청은 정당한가?",
+  },
+  {
+    id: 3,
+    title: "AI 그림 저작권 논란",
+    summary: "AI 이미지 상업적 판매 논란 발생.",
+    question: "이 행위는 정당한가?",
+  },
 ];
 
-function start(){
-  state.name = document.getElementById("name").value;
-  if(!state.name) return alert("이름 입력!");
-  render();
-}
+const principles = ["인간 존중", "정의", "해악 금지", "책임"];
 
-function currentCase(){
-  return cases[state.caseIndex];
-}
+// ===== 점수 시스템 =====
+const score = (text, principle) => {
+  let s = 0;
+  if (text.length > 10) s += 20;
+  if (text.length > 25) s += 20;
+  if (text.includes("피해") || text.includes("권리")) s += 20;
+  if (text.includes(principle)) s += 40;
+  return Math.min(s, 100);
+};
 
-function render(){
+export default function Game() {
+  const [mode, setMode] = useState("student");
+  const [step, setStep] = useState(0);
+  const [answers, setAnswers] = useState({});
+  const [time, setTime] = useState(30);
 
-  const c = currentCase();
-  const saved = state.answers[c.id] || {
-    stance:"",
-    reason:"",
-    rebuttal:""
+  const current = cases[step];
+
+  // ===== 타이머 =====
+  useEffect(() => {
+    if (time > 0) {
+      const t = setTimeout(() => setTime(time - 1), 1000);
+      return () => clearTimeout(t);
+    }
+  }, [time]);
+
+  const update = (field, val) => {
+    setAnswers({
+      ...answers,
+      [step]: { ...answers[step], [field]: val },
+    });
   };
 
-  document.getElementById("game").innerHTML = `
-    <div class="card">
-      <h3>${c.text}</h3>
+  const next = () => {
+    if (step < cases.length - 1) {
+      setStep(step + 1);
+      setTime(30);
+    }
+  };
 
-      <b>① 입장 선택</b><br>
-      <select onchange="updateAnswer('stance', this.value)">
-        <option value="">선택</option>
-        <option value="찬성" ${saved.stance==="찬성"?"selected":""}>찬성</option>
-        <option value="반대" ${saved.stance==="반대"?"selected":""}>반대</option>
-      </select>
+  const total = useMemo(() => {
+    return Object.values(answers).reduce(
+      (sum, a) => sum + score(a?.reason || "", a?.principle || ""),
+      0
+    );
+  }, [answers]);
 
-      <br><br>
+  // ===== 수행평가 문장 자동 생성 =====
+  const finalText = useMemo(() => {
+    return Object.values(answers)
+      .map(
+        (a) =>
+          `나는 ${a?.stance}이다. 이유는 ${a?.reason}이며 이는 ${a?.principle} 원칙과 관련 있다.`
+      )
+      .join("\n");
+  }, [answers]);
 
-      <b>② 근거 작성</b>
+  return (
+    <div style={{ padding: 20 }}>
+      <h1>🎮 디지털 윤리 재판 게임</h1>
+
+      {/* 모드 선택 */}
+      <div>
+        <button onClick={() => setMode("student")}>학생 모드</button>
+        <button onClick={() => setMode("teacher")}>교사 모드</button>
+      </div>
+
+      {/* 사건 */}
+      <h2>{current.title}</h2>
+      <p>{current.summary}</p>
+      <h3>{current.question}</h3>
+
+      {/* 선택 */}
+      <button onClick={() => update("stance", "찬성")}>찬성</button>
+      <button onClick={() => update("stance", "반대")}>반대</button>
+
+      {/* 이유 */}
       <textarea
-        placeholder="왜 그렇게 생각하는지 작성"
-        oninput="updateAnswer('reason', this.value)"
-      >${saved.reason}</textarea>
+        placeholder="이유 작성 (도덕 원칙 포함하면 점수 상승)"
+        onChange={(e) => update("reason", e.target.value)}
+      />
 
-      <br>
+      {/* 원칙 */}
+      <div>
+        {principles.map((p) => (
+          <button key={p} onClick={() => update("principle", p)}>
+            {p}
+          </button>
+        ))}
+      </div>
 
-      <b>③ 반대 입장 반박</b>
-      <textarea
-        placeholder="반대 의견에 대한 반박"
-        oninput="updateAnswer('rebuttal', this.value)"
-      >${saved.rebuttal}</textarea>
+      {/* 타이머 */}
+      <p>⏱ 남은 시간: {time}초</p>
 
-      <br><br>
+      {/* 다음 */}
+      <button onClick={next}>다음</button>
 
-      <button onclick="next()">다음</button>
+      {/* 결과 */}
+      {step === cases.length - 1 && (
+        <div>
+          <h2>🏆 결과</h2>
+          <p>총 점수: {total}</p>
+
+          <h3>📄 수행평가용 문장</h3>
+          <pre>{finalText}</pre>
+        </div>
+      )}
     </div>
-  `;
+  );
 }
-
-/* 🔥 핵심 수정: render 제거 */
-function updateAnswer(field, value){
-  const c = currentCase();
-  const prev = state.answers[c.id] || {
-    stance:"",
-    reason:"",
-    rebuttal:""
-  };
-
-  state.answers[c.id] = {
-    ...prev,
-    [field]: value
-  };
-}
-
-function next(){
-
-  const c = currentCase();
-  const answer = state.answers[c.id];
-
-  if(!answer || !answer.reason || !answer.rebuttal){
-    alert("모든 항목 작성!");
-    return;
-  }
-
-  if(state.caseIndex < cases.length -1){
-    state.caseIndex++;
-    render();
-  } else {
-    finish();
-  }
-}
-
-function finish(){
-
-  let html = "<div class='card'><h2>✅ 완료!</h2>";
-
-  Object.keys(state.answers).forEach(id=>{
-    const a = state.answers[id];
-    html += `
-      <hr>
-      <b>사건 ${id}</b><br>
-      입장: ${a.stance}<br>
-      근거: ${a.reason}<br>
-      반박: ${a.rebuttal}<br>
-    `;
-  });
-
-  html += "</div>";
-
-  document.getElementById("game").innerHTML = html;
-}
-
-</script>
-
-</body>
-</html>
