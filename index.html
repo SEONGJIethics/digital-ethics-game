@@ -1,841 +1,158 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>디지털 윤리 재판 게임</title>
-  <style>
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      font-family: "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
-      background: #f8fafc;
-      color: #0f172a;
-    }
-    .container {
-      max-width: 1100px;
-      margin: 0 auto;
-      padding: 24px;
-    }
-    .card {
-      background: white;
-      border-radius: 20px;
-      padding: 24px;
-      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
-      margin-bottom: 20px;
-    }
-    .title {
-      font-size: 32px;
-      font-weight: 800;
-      margin: 0 0 10px;
-    }
-    .subtitle {
-      color: #475569;
-      line-height: 1.7;
-      margin-bottom: 18px;
-    }
-    .badge {
-      display: inline-block;
-      padding: 6px 12px;
-      border-radius: 999px;
-      background: #e2e8f0;
-      margin-right: 8px;
-      margin-bottom: 8px;
-      font-size: 14px;
-    }
-    .yellow { background: #fef3c7; color: #92400e; }
-    .blue { background: #dbeafe; color: #1d4ed8; }
-    .green { background: #dcfce7; color: #166534; }
-    .pink { background: #ffe4e6; color: #be123c; }
-    .amber { background: #fef3c7; color: #92400e; }
-    .row {
-      display: grid;
-      grid-template-columns: 2fr 1fr;
-      gap: 20px;
-    }
-    @media (max-width: 900px) {
-      .row { grid-template-columns: 1fr; }
-    }
-    button {
-      border: none;
-      border-radius: 14px;
-      padding: 14px 18px;
-      font-size: 16px;
-      cursor: pointer;
-      font-family: inherit;
-    }
-    .primary {
-      background: #0f172a;
-      color: white;
-    }
-    .secondary {
-      background: white;
-      color: #0f172a;
-      border: 1px solid #cbd5e1;
-    }
-    .choice-btn {
-      width: 100%;
-      margin-bottom: 12px;
-    }
-    .choice-selected {
-      background: #0f172a;
-      color: white;
-    }
-    textarea, input {
-      width: 100%;
-      padding: 14px;
-      border-radius: 14px;
-      border: 1px solid #cbd5e1;
-      font-size: 15px;
-      font-family: inherit;
-    }
-    textarea {
-      min-height: 120px;
-      resize: vertical;
-    }
-    .small {
-      color: #64748b;
-      font-size: 14px;
-      line-height: 1.6;
-    }
-    .score-box {
-      background: #f1f5f9;
-      border-radius: 14px;
-      padding: 14px;
-      margin-top: 10px;
-    }
-    .grid-2 {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-    }
-    @media (max-width: 700px) {
-      .grid-2 { grid-template-columns: 1fr; }
-    }
-    .principle-btn {
-      text-align: left;
-      border: 1px solid #cbd5e1;
-      background: white;
-    }
-    .principle-selected {
-      background: #0f172a;
-      color: white;
-    }
-    .result-box, .leader-item, .badge-item {
-      background: #f8fafc;
-      border: 1px solid #e2e8f0;
-      border-radius: 14px;
-      padding: 14px;
-      margin-bottom: 12px;
-    }
-    .top-actions {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      margin-top: 14px;
-    }
-    .final-text {
-      min-height: 260px;
-      white-space: pre-wrap;
-    }
-    .section-title {
-      margin-top: 0;
-      margin-bottom: 12px;
-    }
-    .big-number {
-      font-size: 28px;
-      font-weight: 800;
-      margin-top: 6px;
-    }
-    .dashboard-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-    }
-    @media (max-width: 700px) {
-      .dashboard-grid { grid-template-columns: 1fr; }
-    }
-  </style>
+<meta charset="UTF-8">
+<title>디지털 윤리 게임</title>
+<style>
+body { font-family: sans-serif; padding:20px; background:#f5f7fb;}
+.card { background:white; padding:20px; border-radius:12px; margin-bottom:20px;}
+button { padding:10px 15px; border:none; border-radius:8px; background:#4CAF50; color:white;}
+textarea { width:100%; height:80px; margin-top:10px;}
+.rank { background:#eee; padding:10px; border-radius:10px; margin:5px 0;}
+</style>
 </head>
+
 <body>
-  <div class="container" id="app"></div>
 
-  <script>
-    const CASES = [
-      {
-        id: 1,
-        topic: "표현의 자유와 혐오 표현 규제",
-        title: "사건 1. 연예인 악플 댓글창 제한",
-        summary: "유명 연예인이 지속적인 악성 댓글과 조롱성 게시물로 큰 정신적 피해를 입었다. 플랫폼은 기사 댓글창과 일부 게시물의 댓글 기능을 한시적으로 제한했다.",
-        question: "플랫폼의 댓글 기능 제한은 정당한가?",
-        teacherNote: "표현의 자유를 제한한다는 반론과, 타인에게 피해를 주는 표현은 규제될 수 있다는 주장이 충돌합니다."
-      },
-      {
-        id: 2,
-        topic: "알 권리와 잊힐 권리 / 가짜뉴스와 허위 정보",
-        title: "사건 2. 허위 정보 게시물 삭제 요청",
-        summary: "온라인 커뮤니티와 SNS에서 검증되지 않은 허위 정보가 빠르게 퍼져 사회적 혼란이 커졌다. 관계 기관은 플랫폼에 해당 게시물 삭제를 요청했다.",
-        question: "정부·기관의 삭제 요청은 정당한가?",
-        teacherNote: "사회적 피해를 줄이기 위한 조치인지, 권력에 의한 과도한 통제인지 함께 생각해 볼 수 있습니다."
-      },
-      {
-        id: 3,
-        topic: "지식 재산권과 정보 공유론",
-        title: "사건 3. AI 이미지 상업 판매 논란",
-        summary: "인터넷에 공개된 그림과 사진이 AI 학습에 사용되었고, 이를 바탕으로 만든 이미지를 한 이용자가 상업적으로 판매했다. 원작자들은 자신의 창작물이 무단 활용되었다고 주장한다.",
-        question: "이용자의 행동은 정당한가?",
-        teacherNote: "새로운 기술 활용의 자유와 창작자의 권리 보호가 충돌하는 사례입니다."
-      }
-    ];
-
-    const PRINCIPLES = [
-      {
-        name: "인간 존중",
-        hint: "다른 사람을 자신과 같이 소중히 여기고, 함부로 비난하거나 침해하지 않는가?",
-        className: "blue",
-        keywords: ["존중", "인격", "차별", "비난", "사생활"]
-      },
-      {
-        name: "책임",
-        hint: "자신의 행동이 가져올 결과와 영향까지 고려했는가? 직접적 책임과 간접적 책임을 생각했는가?",
-        className: "amber",
-        keywords: ["책임", "결과", "영향", "예상", "간접", "직접"]
-      },
-      {
-        name: "정의",
-        hint: "타인의 권리를 침해하지 않고, 모두에게 공정한 기회와 자유가 보장되는가?",
-        className: "green",
-        keywords: ["정의", "공정", "평등", "권리", "기회"]
-      },
-      {
-        name: "해악 금지",
-        hint: "타인에게 피해를 주지 않도록 했는가? 악플, 사생활 침해, 허위 정보 유포 같은 해를 막는가?",
-        className: "pink",
-        keywords: ["피해", "해악", "상처", "위험", "유포", "침해"]
-      }
-    ];
-
-    const BADGES = [
-      { id: "principle_master", title: "원칙 마스터", desc: "4가지 책임 중 3가지 이상을 사용함" },
-      { id: "counter_thinker", title: "역지사지 판사", desc: "반대 입장을 모두 작성함" },
-      { id: "clear_writer", title: "명확한 입장", desc: "모든 사건에서 입장, 이유, 원칙을 완성함" }
-    ];
-
-    // 가짜 랭킹 제거
-    const sampleLeaderboard = [];
-
-    const state = {
-      mode: "student",
-      screen: "intro", // intro | play | results | teacherDashboard
-      nickname: "",
-      currentIndex: 0,
-      answers: {}
-    };
-
-    function principleMeta(name) {
-      return PRINCIPLES.find(p => p.name === name);
-    }
-
-    // 타이머 제거 버전 점수 계산
-    function scoreReason(text, principleName, reverseText) {
-      const t = (text || "").trim();
-      const reverse = (reverseText || "").trim();
-      let score = 0;
-
-      if (t.length >= 10) score += 10;
-      if (t.length >= 25) score += 15;
-      if (t.length >= 40) score += 10;
-
-      const genericKeywords = [
-        "피해", "권리", "자유", "책임", "공정",
-        "존중", "혼란", "보호", "규제", "악용",
-        "창작", "결과", "영향"
-      ];
-      const genericHits = genericKeywords.filter(k => t.includes(k)).length;
-      score += Math.min(genericHits * 4, 20);
-
-      const meta = principleMeta(principleName);
-      if (meta) {
-        const hits = meta.keywords.filter(k => t.includes(k)).length;
-        if (hits > 0) score += 25;
-        if (hits > 1) score += 10;
-      }
-
-      if (/[.!?]|다\.?$/.test(t)) score += 5;
-
-      if (reverse.length >= 10) score += 5;
-      if (reverse.includes("자유") || reverse.includes("권리") || reverse.includes("검열")) score += 5;
-
-      return Math.min(score, 100);
-    }
-
-    function feedbackFromScore(score) {
-      if (score >= 85) return "매우 우수합니다. 원칙과 이유가 분명하게 드러납니다.";
-      if (score >= 70) return "좋습니다. 피해·권리·결과를 조금 더 구체적으로 쓰면 더 좋아집니다.";
-      if (score >= 50) return "의견은 보입니다. 4가지 책임 중 하나를 더 분명히 드러내 보세요.";
-      return "근거가 약합니다. 누가 어떤 피해를 받는지, 어떤 권리가 관련되는지 써 보세요.";
-    }
-
-    function buildEssay(answer, caseItem) {
-      if (!answer) return "";
-      const stance = answer.stance || "찬성/반대";
-      const reason = answer.reason || "이유를 작성하세요";
-      const principle = answer.principle || "도덕 원칙";
-      const reverse = answer.reverse || "반대 의견도 존재한다";
-
-      return [
-        `나는 「${caseItem.title}」에 대해 ${stance}한다.`,
-        `그 이유는 ${reason} 때문이다.`,
-        `이 문제는 특히 ${principle}의 관점에서 생각할 필요가 있다.`,
-        `물론 ${reverse}라는 반대 의견도 있을 수 있다.`,
-        `그러나 나는 정보화 사회에서 타인의 권리와 영향을 함께 고려해야 하므로 이러한 판단이 필요하다고 본다.`
-      ].join(" ");
-    }
-
-    function currentCase() {
-      return CASES[state.currentIndex];
-    }
-
-    function currentAnswer() {
-      const c = currentCase();
-      return state.answers[c.id] || { stance: "", reason: "", principle: "", reverse: "" };
-    }
-
-    function updateAnswer(field, value) {
-      const c = currentCase();
-      const prev = state.answers[c.id] || { stance: "", reason: "", principle: "", reverse: "" };
-      state.answers[c.id] = { ...prev, [field]: value };
-      render();
-    }
-
-    function canMoveNext() {
-      const a = currentAnswer();
-      return a.stance && a.reason.trim() && a.principle && a.reverse.trim();
-    }
-
-    function caseScores() {
-      return CASES.map(c => {
-        const a = state.answers[c.id];
-        if (!a) return { id: c.id, score: 0 };
-        return {
-          id: c.id,
-          score: scoreReason(a.reason, a.principle, a.reverse)
-        };
-      });
-    }
-
-    function totalScore() {
-      return caseScores().reduce((sum, item) => sum + item.score, 0);
-    }
-
-    function badges() {
-      const principleUsed = new Set(
-        Object.values(state.answers).map(a => a.principle).filter(Boolean)
-      );
-
-      const allReverses = CASES.every(c => state.answers[c.id]?.reverse?.trim());
-      const allBasics = CASES.every(c =>
-        state.answers[c.id]?.stance &&
-        state.answers[c.id]?.reason?.trim() &&
-        state.answers[c.id]?.principle
-      );
-
-      const earned = [];
-      if (principleUsed.size >= 3) earned.push("principle_master");
-      if (allReverses) earned.push("counter_thinker");
-      if (allBasics) earned.push("clear_writer");
-
-      return BADGES.filter(b => earned.includes(b.id));
-    }
-
-    function leaderboard() {
-      const mine = { name: state.nickname || "현재 사용자", score: totalScore() };
-      if (totalScore() <= 0) return [];
-      return [mine];
-    }
-
-    function finalEssayBundle() {
-      return CASES.map(c => buildEssay(state.answers[c.id], c)).join("\n\n");
-    }
-
-    function mostUsedPrinciple() {
-      const counts = {};
-      Object.values(state.answers).forEach(a => {
-        if (!a.principle) return;
-        counts[a.principle] = (counts[a.principle] || 0) + 1;
-      });
-
-      let maxKey = "-";
-      let maxValue = 0;
-      for (const key in counts) {
-        if (counts[key] > maxValue) {
-          maxValue = counts[key];
-          maxKey = key;
-        }
-      }
-      return maxKey;
-    }
-
-    function principleCounts() {
-      const counts = {
-        "인간 존중": 0,
-        "책임": 0,
-        "정의": 0,
-        "해악 금지": 0
-      };
-      Object.values(state.answers).forEach(a => {
-        if (a.principle && counts[a.principle] !== undefined) {
-          counts[a.principle] += 1;
-        }
-      });
-      return counts;
-    }
-
-    function strongestCase() {
-      const scores = caseScores();
-      let best = null;
-      CASES.forEach((c, idx) => {
-        const score = scores[idx].score;
-        if (!best || score > best.score) {
-          best = { title: c.title, score };
-        }
-      });
-      return best || { title: "-", score: 0 };
-    }
-
-    function weakestCase() {
-      const scores = caseScores();
-      let weak = null;
-      CASES.forEach((c, idx) => {
-        const score = scores[idx].score;
-        if (!weak || score < weak.score) {
-          weak = { title: c.title, score };
-        }
-      });
-      return weak || { title: "-", score: 0 };
-    }
-
-    function resetGame() {
-      state.screen = "intro";
-      state.currentIndex = 0;
-      state.answers = {};
-      state.nickname = "";
-      render();
-    }
-
-    function startGame() {
-      state.screen = "play";
-      state.currentIndex = 0;
-      render();
-    }
-
-    function nextCase() {
-      if (!canMoveNext()) return;
-      if (state.currentIndex < CASES.length - 1) {
-        state.currentIndex += 1;
-        render();
-      } else {
-        state.screen = "results";
-        render();
-      }
-    }
-
-    function prevCase() {
-      if (state.currentIndex > 0) {
-        state.currentIndex -= 1;
-        render();
-      }
-    }
-
-    function openTeacherDashboard() {
-      state.screen = "teacherDashboard";
-      render();
-    }
-
-    function closeTeacherDashboard() {
-      if (Object.keys(state.answers).length > 0) {
-        state.screen = "results";
-      } else {
-        state.screen = "intro";
-      }
-      render();
-    }
-
-    function restartToPlay() {
-      state.currentIndex = 0;
-      state.screen = "play";
-      render();
-    }
-
-    function setMode(mode) {
-      state.mode = mode;
-      render();
-    }
-
-    function saveNicknameAndStart() {
-      const input = document.getElementById("nicknameInput");
-      if (input) state.nickname = input.value;
-      startGame();
-    }
-
-    function renderIntro() {
-      return `
-        <div class="row">
-          <div>
-            <div class="card">
-              <div class="badge">1-1-3 정보화 사회 수업용</div>
-              <div class="badge yellow">게임형 수행평가 준비</div>
-              <h1 class="title">디지털 윤리 재판 게임</h1>
-              <div class="subtitle">
-                최근 한국 사회에서 익숙하게 볼 수 있는 디지털 윤리 사건을 읽고, 판사처럼 판단해 보세요.
-                단순히 찬성·반대를 고르는 것이 아니라, <b>인간 존중 · 책임 · 정의 · 해악 금지</b> 중 어떤 기준으로 판단하는지 드러내야 높은 점수를 받을 수 있습니다.
-              </div>
-
-              <div class="grid-2">
-                <div class="result-box"><b>라운드 1</b><br />사건 읽기 · 찬성/반대 판결</div>
-                <div class="result-box"><b>라운드 2</b><br />4가지 책임과 연결해 이유 쓰기</div>
-                <div class="result-box"><b>라운드 3</b><br />반대 입장까지 생각하기</div>
-                <div class="result-box"><b>파이널</b><br />교사용 분석 · 자동 입장문 생성</div>
-              </div>
-
-              <div style="margin-top:18px;">
-                <div class="small" style="margin-bottom:8px;">이름 또는 닉네임</div>
-                <input id="nicknameInput" placeholder="예: 2-3 김OO / 디지털판사" value="${state.nickname}" />
-              </div>
-
-              <div class="top-actions">
-                <button class="${state.mode === "student" ? "primary" : "secondary"}" onclick="setMode('student')">학생 모드</button>
-                <button class="${state.mode === "teacher" ? "primary" : "secondary"}" onclick="setMode('teacher')">교사 모드</button>
-              </div>
-
-              <div class="top-actions">
-                <button class="primary" onclick="saveNicknameAndStart()">게임 시작하기</button>
-                <button class="secondary" onclick="openTeacherDashboard()">교사용 대시보드 보기</button>
-              </div>
-            </div>
-          </div>
-
-          <div>
-            <div class="card">
-              <h2 class="section-title">오늘의 핵심 기준</h2>
-              ${PRINCIPLES.map(p => `
-                <div class="result-box ${p.className}">
-                  <b>${p.name}</b><br />
-                  <span class="small" style="color:inherit;">${p.hint}</span>
-                </div>
-              `).join("")}
-            </div>
-          </div>
-        </div>
-      `;
-    }
-
-    function renderPlay() {
-      const c = currentCase();
-      const a = currentAnswer();
-      const progress = ((state.currentIndex) / CASES.length) * 100;
-      const score = scoreReason(a.reason, a.principle, a.reverse);
-
-      return `
-        <div class="row">
-          <div>
-            <div class="card">
-              <div class="top-actions" style="justify-content:space-between;">
-                <div>
-                  <span class="badge">디지털 윤리 재판</span>
-                  <span class="badge">${state.currentIndex + 1} / ${CASES.length} 사건</span>
-                  <span class="badge yellow">${c.topic}</span>
-                </div>
-                <div class="small"><b>천천히 생각하고 작성하세요.</b><br />좋은 답은 빠른 답이 아니라 깊이 있는 답입니다.</div>
-              </div>
-              <h1 style="margin:10px 0 14px;">${c.title}</h1>
-              <div style="width:100%;height:12px;background:#e2e8f0;border-radius:999px;overflow:hidden;">
-                <div style="height:100%;background:#0f172a;width:${progress}%;"></div>
-              </div>
-            </div>
-
-            <div class="card">
-              <div class="small">사건 설명</div>
-              <p style="font-size:18px; line-height:1.8;">${c.summary}</p>
-              <div class="result-box" style="font-size:22px; font-weight:700;">${c.question}</div>
-            </div>
-
-            <div class="card">
-              <h2 class="section-title">1단계. 판결 내리기</h2>
-              <div class="grid-2">
-                <button class="choice-btn ${a.stance === "찬성" ? "choice-selected" : "secondary"}" onclick="updateAnswer('stance','찬성')">찬성</button>
-                <button class="choice-btn ${a.stance === "반대" ? "choice-selected" : "secondary"}" onclick="updateAnswer('stance','반대')">반대</button>
-              </div>
-            </div>
-
-            <div class="card">
-              <h2 class="section-title">2단계. 이유 쓰기</h2>
-              <p class="small">
-                좋은 답은 단순히 “나쁘다/좋다”가 아니라,
-                <b>누가 어떤 피해나 권리를 가지는지</b>,
-                그리고 <b>어떤 도덕 원칙과 관련되는지</b> 드러냅니다.
-              </p>
-              <textarea oninput="updateAnswer('reason', this.value)" placeholder="예: 악성 댓글은 사람의 인격을 해치고 정신적 피해를 주므로 해악 금지와 인간 존중의 관점에서 제한이 필요하다.">${a.reason}</textarea>
-              <div class="score-box">현재 점수: <b>${score}</b> / 100</div>
-            </div>
-
-            <div class="card">
-              <h2 class="section-title">3단계. 정보화 사회의 도덕적 책임 고르기</h2>
-              <div class="grid-2">
-                ${PRINCIPLES.map(p => `
-                  <button class="principle-btn ${a.principle === p.name ? "principle-selected" : ""}" onclick="updateAnswer('principle','${p.name}')">
-                    <b>${p.name}</b><br />
-                    <span class="small" style="color:${a.principle === p.name ? "#e2e8f0" : "#64748b"};">${p.hint}</span>
-                  </button>
-                `).join("")}
-              </div>
-            </div>
-
-            <div class="card">
-              <h2 class="section-title">4단계. 판결 뒤집기</h2>
-              <p class="small">나와 반대되는 입장에서는 어떤 이유를 들 수 있을까요? 반대 의견을 적어 보면 내 생각을 더 분명하게 정리할 수 있습니다.</p>
-              <textarea oninput="updateAnswer('reverse', this.value)" placeholder="예: 표현의 자유를 지나치게 제한할 수 있으므로 댓글 기능 제한은 신중해야 한다.">${a.reverse}</textarea>
-            </div>
-
-            <div class="top-actions" style="justify-content:space-between;">
-              <button class="secondary" onclick="prevCase()" ${state.currentIndex === 0 ? "disabled" : ""}>이전 사건</button>
-              <button class="${canMoveNext() ? "primary" : "secondary"}" onclick="nextCase()">${state.currentIndex < CASES.length - 1 ? "다음 사건" : "결과 보기"}</button>
-            </div>
-          </div>
-
-          <div>
-            <div class="card">
-              <h2 class="section-title">좋은 입장문의 조건</h2>
-              <div class="result-box">① 찬성/반대 입장이 분명해야 합니다.</div>
-              <div class="result-box">② 누가 어떤 피해를 받는지, 어떤 권리가 관련되는지 구체적으로 써야 합니다.</div>
-              <div class="result-box">③ 인간 존중·책임·정의·해악 금지 중 하나 이상이 드러나야 합니다.</div>
-            </div>
-
-            <div class="card">
-              <h2 class="section-title">교사용 메모</h2>
-              <div class="result-box">${c.teacherNote}</div>
-              ${state.mode === "teacher" ? `
-                <div class="result-box">추천 운영: 개별 입력 → 짝과 비교 → 자동 생성 문장 보완 → 수행평가 연결</div>
-                <div class="top-actions">
-                  <button class="secondary" onclick="openTeacherDashboard()">대시보드 바로 보기</button>
-                </div>
-              ` : ""}
-            </div>
-
-            <div class="card">
-              <h2 class="section-title">현재 배지 진행도</h2>
-              ${BADGES.map(b => {
-                const earned = badges().some(x => x.id === b.id);
-                return `
-                  <div class="badge-item" style="${earned ? "background:#fef3c7;border-color:#fcd34d;" : ""}">
-                    <b>${earned ? "획득" : "도전"} · ${b.title}</b><br />
-                    <span class="small">${b.desc}</span>
-                  </div>
-                `;
-              }).join("")}
-            </div>
-          </div>
-        </div>
-      `;
-    }
-
-    function renderResults() {
-      const scores = caseScores();
-      return `
-        <div class="row">
-          <div>
-            <div class="card">
-              <div class="badge yellow">최종 결과</div>
-              <h1 class="title">${state.nickname || "현재 사용자"}의 재판 결과</h1>
-              <div class="subtitle">총점 <b>${totalScore()}</b>점</div>
-
-              <div class="grid-2">
-                ${CASES.map((c, idx) => {
-                  const a = state.answers[c.id];
-                  const s = scores[idx]?.score || 0;
-                  return `
-                    <div class="result-box">
-                      <b>${c.title}</b><br />
-                      <span class="small">입장: ${a?.stance || "-"}</span><br />
-                      <span class="small">원칙: ${a?.principle || "-"}</span><br />
-                      <span class="small">점수: ${s}점</span><br />
-                      <span class="small">${feedbackFromScore(s)}</span>
-                    </div>
-                  `;
-                }).join("")}
-              </div>
-            </div>
-
-            <div class="card">
-              <h2 class="section-title">수행평가용 문장 자동 정리</h2>
-              <p class="small">아래 문장은 게임에서 입력한 답을 바탕으로 자동 정리된 초안입니다. 그대로 제출하지 말고, 다듬어서 사용하세요.</p>
-              <textarea class="final-text" readonly>${finalEssayBundle()}</textarea>
-            </div>
-          </div>
-
-          <div>
-            <div class="card">
-              <h2 class="section-title">랭킹</h2>
-              ${leaderboard().length === 0 ? `
-                <div class="small">아직 랭킹에 표시할 실제 참여 기록이 없습니다.</div>
-              ` : leaderboard().map((item, idx) => `
-                <div class="leader-item">
-                  <b>${idx + 1}위 · ${item.name}</b>
-                  <span style="float:right;">${item.score}점</span>
-                </div>
-              `).join("")}
-            </div>
-
-            <div class="card">
-              <h2 class="section-title">획득 배지</h2>
-              ${badges().length === 0 ? `
-                <div class="small">획득한 배지가 아직 없습니다.</div>
-              ` : badges().map(b => `
-                <div class="badge-item" style="background:#fef3c7;border-color:#fcd34d;">
-                  <b>${b.title}</b><br />
-                  <span class="small">${b.desc}</span>
-                </div>
-              `).join("")}
-            </div>
-
-            <div class="card">
-              <h2 class="section-title">교사용 요약</h2>
-              <div class="result-box">전체 평균 점수: <b>${Math.round(totalScore() / CASES.length) || 0}</b></div>
-              <div class="result-box">가장 많이 사용한 원칙: <b>${mostUsedPrinciple()}</b></div>
-              <div class="result-box">활용 팁: 자동 생성 문장을 바로 제출하게 하지 말고, 짝과 바꿔 읽고 보완하게 하면 수행평가 연습 효과가 큽니다.</div>
-              <div class="top-actions">
-                <button class="secondary" onclick="openTeacherDashboard()">교사용 대시보드 크게 보기</button>
-              </div>
-            </div>
-
-            <div class="top-actions">
-              <button class="primary" onclick="restartToPlay()">다시 보기</button>
-              <button class="secondary" onclick="resetGame()">처음으로</button>
-            </div>
-          </div>
-        </div>
-      `;
-    }
-
-    function renderTeacherDashboard() {
-      const counts = principleCounts();
-      const best = strongestCase();
-      const weak = weakestCase();
-
-      return `
-        <div class="row">
-          <div>
-            <div class="card">
-              <div class="badge yellow">교사용 화면</div>
-              <h1 class="title">교사용 대시보드</h1>
-              <div class="subtitle">학생용 게임 화면과 분리된 교사용 분석 화면입니다. 현재 기기에서 입력된 결과를 바탕으로 수업 피드백 포인트를 빠르게 확인할 수 있습니다.</div>
-            </div>
-
-            <div class="card">
-              <h2 class="section-title">한눈에 보기</h2>
-              <div class="dashboard-grid">
-                <div class="result-box">
-                  <div class="small">총점</div>
-                  <div class="big-number">${totalScore()}점</div>
-                </div>
-                <div class="result-box">
-                  <div class="small">평균 점수</div>
-                  <div class="big-number">${Math.round(totalScore() / CASES.length) || 0}점</div>
-                </div>
-                <div class="result-box">
-                  <div class="small">가장 강한 사건</div>
-                  <div class="big-number" style="font-size:20px;">${best.title}</div>
-                  <div class="small">${best.score}점</div>
-                </div>
-                <div class="result-box">
-                  <div class="small">보완 필요한 사건</div>
-                  <div class="big-number" style="font-size:20px;">${weak.title}</div>
-                  <div class="small">${weak.score}점</div>
-                </div>
-              </div>
-            </div>
-
-            <div class="card">
-              <h2 class="section-title">원칙 사용 현황</h2>
-              <div class="result-box">인간 존중 <b style="float:right;">${counts["인간 존중"]}회</b></div>
-              <div class="result-box">책임 <b style="float:right;">${counts["책임"]}회</b></div>
-              <div class="result-box">정의 <b style="float:right;">${counts["정의"]}회</b></div>
-              <div class="result-box">해악 금지 <b style="float:right;">${counts["해악 금지"]}회</b></div>
-            </div>
-
-            <div class="card">
-              <h2 class="section-title">사건별 상세 결과</h2>
-              ${CASES.map((c, idx) => {
-                const a = state.answers[c.id];
-                const s = caseScores()[idx]?.score || 0;
-                return `
-                  <div class="result-box">
-                    <b>${c.title}</b><br />
-                    <span class="small">입장: ${a?.stance || "-"}</span><br />
-                    <span class="small">원칙: ${a?.principle || "-"}</span><br />
-                    <span class="small">점수: ${s}점</span><br />
-                    <span class="small">${feedbackFromScore(s)}</span>
-                  </div>
-                `;
-              }).join("")}
-            </div>
-
-            <div class="card">
-              <h2 class="section-title">자동 생성 입장문 점검</h2>
-              <textarea class="final-text" readonly>${finalEssayBundle()}</textarea>
-            </div>
-          </div>
-
-          <div>
-            <div class="card">
-              <h2 class="section-title">교사용 코멘트</h2>
-              <div class="result-box">1. 원칙 사용이 한쪽에 몰리면, 다른 원칙으로도 다시 설명해 보게 하세요.</div>
-              <div class="result-box">2. 점수가 낮은 사건은 “누가 어떤 피해를 받는가?”를 다시 질문하면 좋아집니다.</div>
-              <div class="result-box">3. 반대 의견이 약하면 “표현의 자유 / 알 권리 / 창작의 자유” 쪽에서 다시 써 보게 하세요.</div>
-            </div>
-
-            <div class="card">
-              <h2 class="section-title">랭킹</h2>
-              ${leaderboard().length === 0 ? `
-                <div class="small">아직 실제 참여 기록이 없습니다.</div>
-              ` : leaderboard().map((item, idx) => `
-                <div class="leader-item">
-                  <b>${idx + 1}위 · ${item.name}</b>
-                  <span style="float:right;">${item.score}점</span>
-                </div>
-              `).join("")}
-            </div>
-
-            <div class="card">
-              <h2 class="section-title">획득 배지</h2>
-              ${badges().length === 0 ? `
-                <div class="small">획득한 배지가 아직 없습니다.</div>
-              ` : badges().map(b => `
-                <div class="badge-item" style="background:#fef3c7;border-color:#fcd34d;">
-                  <b>${b.title}</b><br />
-                  <span class="small">${b.desc}</span>
-                </div>
-              `).join("")}
-            </div>
-
-            <div class="top-actions">
-              <button class="primary" onclick="closeTeacherDashboard()">결과 화면으로 돌아가기</button>
-              <button class="secondary" onclick="resetGame()">처음으로</button>
-            </div>
-          </div>
-        </div>
-      `;
-    }
-
-    function render() {
-      const app = document.getElementById("app");
-      if (state.screen === "intro") app.innerHTML = renderIntro();
-      if (state.screen === "play") app.innerHTML = renderPlay();
-      if (state.screen === "results") app.innerHTML = renderResults();
-      if (state.screen === "teacherDashboard") app.innerHTML = renderTeacherDashboard();
-    }
-
+<h1>🎮 디지털 윤리 게임</h1>
+
+<div class="card">
+  이름: <input id="name">
+  <button onclick="start()">시작</button>
+</div>
+
+<div id="game"></div>
+
+<div id="ranking" class="card"></div>
+
+<script>
+
+let state = {
+  name:"",
+  caseIndex:0,
+  answers:{},
+  scores:[],
+  allAnswers: {} // 🔥 교사용 전체 답변 저장
+};
+
+const cases = [
+  {
+    id:1,
+    text:"🔥 사건1: SNS에서 친구를 비난하는 글이 퍼졌다."
+  },
+  {
+    id:2,
+    text:"🔥 사건2: 유명인의 루머가 단톡방에서 공유되고 있다."
+  }
+];
+
+function start(){
+  state.name = document.getElementById("name").value;
+  if(!state.name) return alert("이름 입력!");
+  render();
+}
+
+function render(){
+  const c = cases[state.caseIndex];
+  const saved = state.answers[c.id] || { stance:"", reason:"" };
+
+  document.getElementById("game").innerHTML = `
+    <div class="card">
+      <h3>${c.text}</h3>
+
+      <select onchange="updateAnswer('stance', this.value)">
+        <option value="">선택</option>
+        <option value="찬성">찬성</option>
+        <option value="반대">반대</option>
+      </select>
+
+      <textarea placeholder="이유 작성"
+        oninput="updateAnswer('reason', this.value)"
+      >${saved.reason}</textarea>
+
+      <br><br>
+      <button onclick="next()">다음</button>
+    </div>
+  `;
+}
+
+function updateAnswer(field, value){
+  const c = cases[state.caseIndex];
+  const prev = state.answers[c.id] || { stance:"", reason:"" };
+
+  state.answers[c.id] = { ...prev, [field]: value };
+
+  // 🔥 교사용 전체 답변 저장
+  if(!state.allAnswers[c.id]) state.allAnswers[c.id] = [];
+}
+
+function next(){
+  const c = cases[state.caseIndex];
+  const answer = state.answers[c.id];
+
+  if(!answer || !answer.reason){
+    alert("작성하세요!");
+    return;
+  }
+
+  // 🔥 답변 저장
+  state.allAnswers[c.id].push({
+    name: state.name,
+    answer: answer.reason
+  });
+
+  if(state.caseIndex < cases.length -1){
+    showBestAnswers(c.id);
+    state.caseIndex++;
     render();
-  </script>
+  } else {
+    finish();
+  }
+}
+
+function showBestAnswers(caseId){
+  const arr = state.allAnswers[caseId];
+
+  let html = `<div class="card"><h3>👍 좋은 답변 예시</h3>`;
+
+  arr.slice(-3).forEach(a=>{
+    html += `<div class="rank">${a.name}: ${a.answer}</div>`;
+  });
+
+  html += `<button onclick="render()">다음 사건</button></div>`;
+
+  document.getElementById("game").innerHTML = html;
+}
+
+function finish(){
+
+  let score = Math.floor(Math.random()*100)+100;
+
+  state.scores.push({
+    name: state.name,
+    score
+  });
+
+  renderRanking();
+}
+
+function renderRanking(){
+
+  let sorted = [...state.scores].sort((a,b)=>b.score-a.score);
+
+  let html = "<h3>🏆 랭킹</h3>";
+
+  sorted.forEach((s,i)=>{
+    html += `<div class="rank">${i+1}위 ${s.name} - ${s.score}점</div>`;
+  });
+
+  document.getElementById("ranking").innerHTML = html;
+
+  // 🔥 교사용 전체 답변 콘솔 출력
+  console.log("전체 답변:", state.allAnswers);
+}
+
+</script>
+
 </body>
 </html>
